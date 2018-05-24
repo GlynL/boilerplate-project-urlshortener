@@ -3,7 +3,6 @@
 var express = require("express");
 var mongo = require("mongodb");
 var mongoose = require("mongoose");
-
 var cors = require("cors");
 
 var app = express();
@@ -51,6 +50,12 @@ app.get("/api/hello", function(req, res) {
   res.json({ greeting: "hello API" });
 });
 
+app.get("/api/urls/removeall", function(req, res) {
+  Url.remove({}, function(err, response) {
+    res.send("all urls removed");
+  });
+});
+
 app.get("/api/urls", function(req, res) {
   Url.find(function(err, urls) {
     res.json(urls);
@@ -58,27 +63,24 @@ app.get("/api/urls", function(req, res) {
 });
 
 app.post("/api/shorturl/new", function(req, res) {
-  let count;
-  let newUrl = req.body;
+  let newSite = req.body;
+  checkUrl(req.body);
 
-  Url.findOne({ url: req.body.url }, function(err, site) {
-    if (site) {
-      console.log(site);
-      // res.json(site);
-    }
-  });
+  function checkUrl(newSite) {
+    Url.findOne({ url: newSite.url }, function(err, site) {
+      if (site) return res.json(site);
+      if (err) return res.send("sorry there was an error");
+      createUrl();
+    });
+  }
 
-  Url.find(function(err, urls) {
-    count = Object.keys(urls).length + 1;
-  })
-    .then(() => (newUrl.short_url = count))
-    .then(() =>
-      Url.create(newUrl, (err, post) => {
-        console.log(`newUrl: ${newUrl}, post: ${post}`);
-        res.json(post);
-      })
-    )
-    .catch(err => res.send(err));
+  function createUrl() {
+    Url.find(function(err, urls) {
+      newSite.short_url = Object.keys(urls).length + 1;
+    })
+      .then(() => Url.create(newSite, (err, site) => res.json(site)))
+      .catch(err => res.send("Sorry there was an error"));
+  }
 });
 
 app.get("/api/shorturl/:code", function(req, res) {
