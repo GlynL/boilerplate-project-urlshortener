@@ -14,13 +14,19 @@ var port = process.env.PORT || 3000;
 /** this project needs a db !! **/
 mongoose.set("debug", true);
 mongoose.connect("mongodb://localhost/urlshortener", { useMongoClient: true });
-mongoose.Promise = Promise;
+var db = mongoose.connection;
+// mongoose.Promise = Promise;
 // mongoose.connect(process.env.MONGOLAB_URI);
+mongoose.Promise = Promise;
 
-var urlSchema = new mongoose.Schema({
+var Schema = mongoose.Schema;
+var urlSchema = new Schema({
   url: {
     type: String,
     required: "url cannot be blank"
+  },
+  short_url: {
+    type: Number
   }
 });
 
@@ -45,14 +51,43 @@ app.get("/api/hello", function(req, res) {
   res.json({ greeting: "hello API" });
 });
 
+app.get("/api/urls", function(req, res) {
+  Url.find(function(err, urls) {
+    res.json(urls);
+  });
+});
+
 app.post("/api/shorturl/new", function(req, res) {
-  db.Url.create(req.body)
-    .then(newUrl => res.json(newUrl))
-    .catch(err => console.log(err));
-  // res.json({
-  // url: req.body.url,
-  // short_url: "placeholder"
-  // });
+  let count;
+  let newUrl = req.body;
+
+  Url.findOne({ url: req.body.url }, function(err, site) {
+    if (site) {
+      console.log(site);
+      // res.json(site);
+    }
+  });
+
+  Url.find(function(err, urls) {
+    count = Object.keys(urls).length + 1;
+  })
+    .then(() => (newUrl.short_url = count))
+    .then(() =>
+      Url.create(newUrl, (err, post) => {
+        console.log(`newUrl: ${newUrl}, post: ${post}`);
+        res.json(post);
+      })
+    )
+    .catch(err => res.send(err));
+});
+
+app.get("/api/shorturl/:code", function(req, res) {
+  let code = req.params.code;
+  Url.findOne({ short_url: code })
+    .then(url => res.redirect(url.url))
+    .catch(err =>
+      res.send(`This shortcode (${code}) doesn't exist. Please try again.`)
+    );
 });
 
 app.listen(port, function() {
