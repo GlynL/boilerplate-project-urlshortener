@@ -2,8 +2,8 @@ var mongo = require("mongodb");
 var mongoose = require("mongoose");
 
 mongoose.set("debug", true);
-mongoose.connect("mongodb://localhost/urlshortener", { useMongoClient: true });
-// mongoose.connect(process.env.MONGOLAB_URI);
+const url = process.env.MONGOLAB_URI || "mongodb://localhost/urlshortener";
+mongoose.connect(url, { useMongoClient: true });
 // var db = mongoose.connection;
 mongoose.Promise = Promise;
 
