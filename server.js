@@ -7,7 +7,7 @@ var urlRoutes = require("./routes/urls");
 var app = express();
 
 // Basic Configuration
-var port = process.env.PORT || 3000;
+var PORT = process.env.PORT || 3000;
 
 app.use(cors());
 
@@ -17,14 +17,14 @@ var bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use("/public", express.static(process.cwd() + "/public"));
+app.use(express.static("public"));
 
 app.get("/", function(req, res) {
-  res.sendFile(process.cwd() + "/views/index.html");
+  res.sendFile(__dirname + "/views/index.html");
 });
 
 app.use("/api", urlRoutes);
 
-app.listen(port, function() {
+app.listen(PORT, function() {
   console.log("Node.js listening ...");
 });
