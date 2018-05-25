@@ -9,7 +9,7 @@ var app = express();
 // Basic Configuration
 var PORT = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({ optionSuccessStatus: 200 }));
 
 /** this project needs to parse POST bodies **/
 // you should mount the body-parser here
