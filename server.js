@@ -8,6 +8,7 @@ var app = express();
 
 // Basic Configuration
 var PORT = process.env.PORT || 3000;
+console.log(PORT);
 
 app.use(cors({ optionSuccessStatus: 200 }));
 
