@@ -1,3 +1,5 @@
+"use strict";
+
 var db = require("../models");
 
 exports.hello = (req, res) => res.json({ greeting: "hello API" });
